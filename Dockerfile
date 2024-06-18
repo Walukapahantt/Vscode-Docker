@@ -1,48 +1,19 @@
-FROM ghcr.io/linuxserver/baseimage-ubuntu:jammy
+# Use the latest Ubuntu image
+FROM ubuntu:latest
 
-# set version label
-ARG BUILD_DATE
-ARG VERSION
-ARG CODE_RELEASE
-LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="aptalca"
+# Update and install required packages
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip
 
-# environment settings
-ARG DEBIAN_FRONTEND="noninteractive"
-ENV HOME="/config"
+# Set the working directory
+WORKDIR /app
 
-RUN \
-  echo "**** install runtime dependencies ****" && \
-  apt-get update && \
-  apt-get install -y \
-    git \
-    jq \
-    libatomic1 \
-    nano \
-    net-tools \
-    netcat \
-    sudo && \
-  echo "**** install code-server ****" && \
-  if [ -z ${CODE_RELEASE+x} ]; then \
-    CODE_RELEASE=$(curl -sX GET https://api.github.com/repos/coder/code-server/releases/latest \
-      | awk '/tag_name/{print $4;exit}' FS='[""]' | sed 's|^v||'); \
-  fi && \
-  mkdir -p /app/code-server && \
-  curl -o \
-    /tmp/code-server.tar.gz -L \
-    "https://github.com/coder/code-server/releases/download/v${CODE_RELEASE}/code-server-${CODE_RELEASE}-linux-amd64.tar.gz" && \
-  tar xf /tmp/code-server.tar.gz -C \
-    /app/code-server --strip-components=1 && \
-  echo "**** clean up ****" && \
-  apt-get clean && \
-  rm -rf \
-    /config/* \
-    /tmp/* \
-    /var/lib/apt/lists/* \
-    /var/tmp/*
+# Install JupyterLab
+RUN pip3 install jupyterlab
 
-# add local files
-COPY /root /
+# Expose port 8080
+EXPOSE 8080
 
-# ports and volumes
-EXPOSE 8443
+# Start JupyterLab on port 8080 without authentication
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8080", "--no-browser", "--allow-root", "--NotebookApp.token=''"]
