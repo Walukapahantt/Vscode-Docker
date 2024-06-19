@@ -13,7 +13,11 @@ RUN wget https://github.com/coder/code-server/releases/download/v4.90.2/code-ser
 
 RUN tar -xvf code-server-4.90.2-linux-arm64.tar.gz
 
+RUN ls
+
 RUN cd code-server-4.90.2-linux-arm64
+
+RUN ls
 
 RUN cd bin
 
