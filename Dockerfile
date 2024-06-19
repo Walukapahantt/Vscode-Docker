@@ -19,7 +19,7 @@ RUN cd code-server-4.90.2-linux-arm64
 
 RUN ls
 
-RUN cd code-server-4.90.2-linux-arm64
+RUN cd /bin/sh
 
 RUN export PASSWORD="waluka"
 
